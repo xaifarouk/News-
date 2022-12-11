@@ -1,0 +1,59 @@
+import requests
+from bs4 import BeautifulSoup
+import tkinter as tk
+
+# Function to get the news headlines from a website
+def get_news():
+    # Get the HTML content from a news website
+    r = requests.get('https://news.google.com/')
+    soup = BeautifulSoup(r.content)
+
+    # Extract the headlines from the HTML
+    headlines = []
+    for h in soup.find_all('h3'):
+        headlines.append(h.text)
+
+    # Return the headlines
+    return headlines
+
+# Function to refresh the news headlines in the user interface
+def refresh_headlines():
+    # Get the latest news headlines
+    headlines = get_news()
+
+    # Clear the current headlines from the list box
+    listbox.delete(0, tk.END)
+
+    # Add the new headlines to the list box
+    for headline in headlines:
+        listbox.insert(tk.END, headline)
+
+# Create the main window
+window = tk.Tk()
+window.title("News App")
+window.geometry("500x300")
+
+# Create a label to display the news headlines
+label = tk.Label(window, text="News Headlines", font=("Arial", 24))
+label.pack()
+
+# Create a scrollable frame to display the news headlines
+frame = tk.Frame(window)
+frame.pack()
+scrollbar = tk.Scrollbar(frame)
+scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+# Create a list box to display the headlines
+headlines = get_news()
+listbox = tk.Listbox(frame, yscrollcommand=scrollbar.set)
+for headline in headlines:
+    listbox.insert(tk.END, headline)
+listbox.pack(side=tk.LEFT, fill=tk.BOTH)
+scrollbar.config(command=listbox.yview)
+
+# Create a button to refresh the news headlines
+button = tk.Button(window, text="Refresh", command=refresh_headlines)
+button.pack()
+
+# Display the main window
+window.mainloop()
